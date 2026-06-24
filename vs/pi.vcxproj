@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ===========================================================================
+   pi.vcxproj : Hand-written Visual Studio 2026 project for the `pi` CLI.
+   Builds build\vs\<Config>\pi.exe from the library sources plus src/main.cpp.
+
+   How CUDA plugs into MSBuild (three things, in order):
+     1. Import of "CUDA 13.3.props" in the ExtensionSettings group teaches
+        MSBuild about the CudaCompile item type and nvcc.
+     2. .cu files are listed as CudaCompile (compiled by nvcc); .cpp files are
+        ordinary ClCompile (compiled by cl.exe).
+     3. Import of "CUDA 13.3.targets" in the ExtensionTargets group (LAST)
+        wires up the actual build steps.
+
+   PlatformToolset is v145 (the toolset that ships with Visual Studio 2026, v18).
+   The CUDA build customization files were installed by the CUDA 13.3 installer
+   into VS's v180\BuildCustomizations folder, so $(VCTargetsPath) resolves them
+   automatically. If you see "CUDA 13.3.props was not found", re-run the CUDA
+   installer's "Visual Studio Integration" component.
+
+   NOTE: the recommended build is CMake (see CMakeLists.txt and gen_vs.ps1),
+   which generates a solution that builds the CLI, the demo, AND the self-test.
+   This hand-written project is provided for those who want a checked-in .sln.
+  ===========================================================================
+-->
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+
+  <PropertyGroup Label="Globals">
+    <VCProjectVersion>18.0</VCProjectVersion>
+    <ProjectGuid>{A1B2C3D4-1111-4A5B-8C9D-000000000001}</ProjectGuid>
+    <RootNamespace>pi</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v145</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <PlatformToolset>v145</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+
+  <!-- (1) CUDA build customization: defines the CudaCompile item type. -->
+  <ImportGroup Label="ExtensionSettings">
+    <Import Project="$(VCTargetsPath)\BuildCustomizations\CUDA 13.3.props" />
+  </ImportGroup>
+
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+
+  <!-- Put build outputs under the repo's build\vs\ folder (kept out of git). -->
+  <PropertyGroup>
+    <OutDir>$(ProjectDir)..\build\vs\$(Configuration)\</OutDir>
+    <IntDir>$(ProjectDir)..\build\vs\obj\$(ProjectName)\$(Configuration)\</IntDir>
+  </PropertyGroup>
+
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+      <AdditionalIncludeDirectories>$(ProjectDir)..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Console</SubSystem>
+    </Link>
+    <CudaCompile>
+      <TargetMachinePlatform>64</TargetMachinePlatform>
+      <CodeGeneration>compute_75,sm_75</CodeGeneration>
+      <!-- Tell nvcc to compile device/host code as C++17 (pi_reference.h uses
+           C++17 inline variables). ClCompile's LanguageStandard does not reach nvcc. -->
+      <AdditionalOptions>-std=c++17 %(AdditionalOptions)</AdditionalOptions>
+    </CudaCompile>
+  </ItemDefinitionGroup>
+
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+      <AdditionalIncludeDirectories>$(ProjectDir)..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <SubSystem>Console</SubSystem>
+    </Link>
+    <CudaCompile>
+      <TargetMachinePlatform>64</TargetMachinePlatform>
+      <CodeGeneration>compute_75,sm_75</CodeGeneration>
+      <!-- Tell nvcc to compile device/host code as C++17 (pi_reference.h uses
+           C++17 inline variables). ClCompile's LanguageStandard does not reach nvcc. -->
+      <AdditionalOptions>-std=c++17 %(AdditionalOptions)</AdditionalOptions>
+    </CudaCompile>
+  </ItemDefinitionGroup>
+
+  <!-- Host (CPU) sources compiled by cl.exe. -->
+  <ItemGroup>
+    <ClCompile Include="..\src\bignum.cpp" />
+    <ClCompile Include="..\src\bignum_div.cpp" />
+    <ClCompile Include="..\src\ntt_cpu.cpp" />
+    <ClCompile Include="..\src\chudnovsky.cpp" />
+    <ClCompile Include="..\src\bbp_cpu.cpp" />
+    <ClCompile Include="..\src\main.cpp" />
+  </ItemGroup>
+
+  <!-- Device (GPU) sources compiled by nvcc. -->
+  <ItemGroup>
+    <CudaCompile Include="..\src\ntt_cuda.cu" />
+    <CudaCompile Include="..\src\bbp_cuda.cu" />
+  </ItemGroup>
+
+  <!-- Headers (for IDE browsing only; not compiled directly). -->
+  <ItemGroup>
+    <ClInclude Include="..\include\bignum.h" />
+    <ClInclude Include="..\include\goldilocks.h" />
+    <ClInclude Include="..\include\ntt.h" />
+    <ClInclude Include="..\include\chudnovsky.h" />
+    <ClInclude Include="..\include\bbp.h" />
+    <ClInclude Include="..\include\bbp_kernel.h" />
+    <ClInclude Include="..\include\pi_reference.h" />
+  </ItemGroup>
+
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+
+  <!-- (3) CUDA targets (MUST be last). -->
+  <ImportGroup Label="ExtensionTargets">
+    <Import Project="$(VCTargetsPath)\BuildCustomizations\CUDA 13.3.targets" />
+  </ImportGroup>
+</Project>

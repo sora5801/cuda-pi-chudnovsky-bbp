@@ -1,0 +1,51 @@
+# --- Build outputs ----------------------------------------------------------
+build/
+build-ninja/
+build_vs/
+out/
+bin/
+x64/
+Debug/
+Release/
+
+# MSBuild per-project intermediate dirs created next to the hand-written .vcxproj
+vs/pi/
+vs/pi_demo/
+vs/x64/
+
+# --- Compiled artifacts -----------------------------------------------------
+*.exe
+*.obj
+*.o
+*.lib
+*.a
+*.exp
+*.pdb
+*.ilk
+*.idb
+
+# --- CMake -------------------------------------------------------------------
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+CTestTestfile.cmake
+*.cmake.stamp
+
+# --- Visual Studio user/IDE files ------------------------------------------
+.vs/
+*.user
+*.suo
+*.vcxproj.user
+*.VC.db
+*.VC.opendb
+
+# --- Generated pi output ----------------------------------------------------
+pi.txt
+*.pi
+pi_*.txt
+
+# --- Editor / OS misc -------------------------------------------------------
+*.swp
+*~
+.DS_Store
+Thumbs.db

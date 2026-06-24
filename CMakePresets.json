@@ -1,0 +1,35 @@
+{
+  "version": 3,
+  "cmakeMinimumRequired": { "major": 3, "minor": 24, "patch": 0 },
+  "configurePresets": [
+    {
+      "name": "vs2026",
+      "displayName": "Visual Studio 2026 (x64)",
+      "description": "Generates a Visual Studio 2026 solution (.sln) you can open and build in the IDE.",
+      "generator": "Visual Studio 18 2026",
+      "architecture": "x64",
+      "binaryDir": "${sourceDir}/build",
+      "cacheVariables": {
+        "CMAKE_CUDA_ARCHITECTURES": "75"
+      }
+    },
+    {
+      "name": "ninja-release",
+      "displayName": "Ninja (Release)",
+      "description": "Command-line Ninja build; requires running from a VS Developer prompt.",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/build-ninja",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release",
+        "CMAKE_CUDA_ARCHITECTURES": "75"
+      }
+    }
+  ],
+  "buildPresets": [
+    { "name": "vs2026-release", "configurePreset": "vs2026", "configuration": "Release" },
+    { "name": "ninja-release", "configurePreset": "ninja-release" }
+  ],
+  "testPresets": [
+    { "name": "vs2026-release", "configurePreset": "vs2026", "configuration": "Release", "output": { "outputOnFailure": true } }
+  ]
+}
