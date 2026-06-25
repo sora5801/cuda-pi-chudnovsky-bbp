@@ -58,7 +58,7 @@ To make this tractable, the code splits the formula into four **sub-series**, on
 per denominator family. Define:
 
 $$
-S_j = \sum_{k \ge 0} \frac{1}{16^{k}\,(8k+j)}
+S_j = \sum_{k \ge 0} \frac{1}{16^{k}(8k+j)}
 $$
 
 Then π is a simple linear combination:
@@ -87,10 +87,11 @@ fractional part of `16^d · π`. Distributing the `16^d` across the linear
 combination and taking everything mod 1:
 
 $$
-\{16^{d}\,\pi\} = \big\{\, 4\{16^{d}S_1\} - 2\{16^{d}S_4\} - \{16^{d}S_5\} - \{16^{d}S_6\} \,\big\}
+\operatorname{frac}(16^{d}\pi) = \operatorname{frac}\left( 4 F_1 - 2 F_4 - F_5 - F_6 \right),
+\qquad F_j = \operatorname{frac}(16^{d} S_j)
 $$
 
-where `{x}` denotes the fractional part of `x`. So the entire problem collapses to:
+where `frac(x)` denotes the fractional part of `x`. So the entire problem collapses to:
 **compute `{16^d · S_j}` for `j ∈ {1, 4, 5, 6}`.** That single quantity is what
 `bbp_series(j, d)` returns, and the assembly above is the literal transcription of
 the prompt's `frac(4·S1 − 2·S4 − S5 − S6)`.
@@ -117,9 +118,10 @@ Computing `{16^d · S_j}` naively would still require summing `1/(16^k (8k+j))` 
 exponent `d − k` flips sign there:
 
 $$
-\{16^{d} S_j\} =
-\Bigg\{ \underbrace{\sum_{k=0}^{d} \frac{16^{\,d-k} \bmod (8k+j)}{8k+j}}_{\text{HEAD: exponent} \ge 0}
-       + \underbrace{\sum_{k=d+1}^{\infty} \frac{16^{\,d-k}}{8k+j}}_{\text{TAIL: exponent} < 0} \Bigg\}
+\operatorname{frac}(16^{d} S_j) = \operatorname{frac}\left(
+\underbrace{\sum_{k=0}^{d} \frac{16^{d-k} \bmod (8k+j)}{8k+j}}_{\text{HEAD: } d-k \ge 0}
++ \underbrace{\sum_{k=d+1}^{\infty} \frac{16^{d-k}}{8k+j}}_{\text{TAIL: } d-k \le -1}
+\right)
 $$
 
 This is the structure of `bbp_series()`. Let's take the two halves in turn.
