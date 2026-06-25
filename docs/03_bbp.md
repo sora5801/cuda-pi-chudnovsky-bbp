@@ -87,8 +87,8 @@ fractional part of `16^d · π`. Distributing the `16^d` across the linear
 combination and taking everything mod 1:
 
 $$
-\operatorname{frac}(16^{d}\pi) = \operatorname{frac}\left( 4 F_1 - 2 F_4 - F_5 - F_6 \right),
-\qquad F_j = \operatorname{frac}(16^{d} S_j)
+\mathrm{frac}(16^{d}\pi) = \mathrm{frac}\left( 4 F_1 - 2 F_4 - F_5 - F_6 \right),
+\qquad F_j = \mathrm{frac}(16^{d} S_j)
 $$
 
 where `frac(x)` denotes the fractional part of `x`. So the entire problem collapses to:
@@ -118,9 +118,9 @@ Computing `{16^d · S_j}` naively would still require summing `1/(16^k (8k+j))` 
 exponent `d − k` flips sign there:
 
 $$
-\operatorname{frac}(16^{d} S_j) = \operatorname{frac}\left(
-\underbrace{\sum_{k=0}^{d} \frac{16^{d-k} \bmod (8k+j)}{8k+j}}_{\text{HEAD: } d-k \ge 0}
-+ \underbrace{\sum_{k=d+1}^{\infty} \frac{16^{d-k}}{8k+j}}_{\text{TAIL: } d-k \le -1}
+\mathrm{frac}(16^{d} S_j) = \mathrm{frac}\left(
+\underbrace{\sum_{k=0}^{d} \frac{16^{d-k} \bmod (8k+j)}{8k+j}}_{\text{HEAD: } d-k \ge 0} +
+\underbrace{\sum_{k=d+1}^{\infty} \frac{16^{d-k}}{8k+j}}_{\text{TAIL: } d-k \le -1}
 \right)
 $$
 
